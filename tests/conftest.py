@@ -22,13 +22,17 @@ def api_gw_event() -> dict:
         "body": "",
         "requestContext": {
             "http": {
-              "method": "GET",
-              "path": "/",
-              "protocol": "HTTP/1.1",
-              "sourceIp": "192.168.0.1/32",
-              "userAgent": "agent"
+                "method": "GET",
+                "path": "/",
+                "protocol": "HTTP/1.1",
+                "sourceIp": "192.168.0.1/32",
+                "userAgent": "agent",
             },
             "stage": "$default",
+        },
+        "queryStringParameters": {
+            "league": "aspiration",
+            "team_name": "Singing%20Frogs",
         },
         "rawPath": "/",
     }
