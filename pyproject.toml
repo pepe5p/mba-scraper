@@ -1,0 +1,91 @@
+[tool.poetry]
+name = "mba-scraper"
+version = "0.1.0"
+description = "AWS Lambda code that scrapes schedule from MBA League website and returns .ics calendar with games."
+authors = ["Piotr Karaś <pepe500p@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+aws-lambda-powertools = "^3.7.0"
+beautifulsoup4 = "^4.13.3"
+dumb-init = "^1.2.5.post1"
+icalendar = "^6.1.1"
+requests = "^2.32.3"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.10.0"
+copier = "^9.6.0"
+fawltydeps = "^0.13.3"
+flake8 = "^6.0.0"
+flake8-pyproject = "^1.2.3"
+ipython = "^8.32.0"
+isort = {version = "^5.12.0", extras = ["colors"]}
+mypy = "^1.3.0"
+pytest = "^8.2.1"
+pytest-cov = "^4.1.0"
+types-requests = "^2.32.0.20241016"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 120
+
+[tool.coverage.run]
+branch = true
+omit = ["*test*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError()",
+]
+
+[tool.fawltydeps]
+code = ["src"]
+deps = ["pyproject.toml"]
+ignore_unused = [
+    "dumb-init",
+
+    # Dev dependencies. This list should contain ALL of them!
+    "black",
+    "copier",
+    "fawltydeps",
+    "flake8",
+    "flake8-pyproject",
+    "ipython",
+    "isort",
+    "mypy",
+    "poetry-dynamic-versioning",
+    "pytest",
+    "pytest-cov",
+]
+
+[tool.flake8]
+# S101 == Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+# W503 == line break before binary operator. Conflicts with W504 - line break after binary operator.
+# A003 == . Conflicts with W504 - line break after binary operator.
+# E203 == whitespace before ':' Conflicts with black
+ignore = ['S101', 'W503', 'A003', 'E203']
+max-line-length = 120
+
+[tool.isort]
+profile = "black"
+line_length = 120
+order_by_type = false
+
+[tool.mypy]
+disallow_untyped_defs = true
+ignore_missing_imports = true
+show_error_codes = true
+show_traceback = true
+no_implicit_optional = true
+check_untyped_defs = true
+strict_equality = true
+
+[tool.pytest.ini_options]
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+addopts = "--strict-markers --cov=. --cov-fail-under=90.0 --cov-config=.coveragerc"
+pythonpath = ["."]
