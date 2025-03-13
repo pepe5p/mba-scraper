@@ -184,14 +184,18 @@ def create_ical(game_events: list[GameEventData]) -> Calendar:
     cal = Calendar()
     cal.add("prodid", "-//MBA league calednar//mxm.dk//")
     cal.add("version", "2.0")
+    cal.add("X-WR-CALNAME", "MBA League Calendar")
+    cal.add("X-WR-TIMEZONE", "Europe/Warsaw")
+    cal.add("CALSCALE", "GREGORIAN")
+    cal.add("X-PUBLISHED-TTL", "PT12H")
 
     for game_event in game_events:
         ical_event = Event()
         ical_event.add("SUMMARY", f"MBA: {game_event.home_team} vs {game_event.away_team}")
         ical_event.add("LOCATION", game_event.location)
-        utc_datetime = datetime.strptime(game_event.start_datetime, "%d %b %Y, %H:%M")
-        ical_event.add("DTSTART", utc_datetime)
-        ical_event.add("DTEND", utc_datetime + timedelta(hours=1, minutes=30))
+        local_datetime = datetime.strptime(game_event.start_datetime, "%d %b %Y, %H:%M")
+        ical_event.add("DTSTART", local_datetime)
+        ical_event.add("DTEND", local_datetime + timedelta(hours=1, minutes=30))
         cal.add_component(ical_event)
 
     return cal
