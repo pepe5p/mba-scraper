@@ -4,10 +4,10 @@ Transform: AWS::Serverless-2016-10-31
 Description: An AWS Serverless Specification local template for testing on your machine.
 
 Resources:
-  LecturesFilterFunction:
+  MBAScraper:
     Type: "AWS::Serverless::Function"
     Properties:
-      Handler: src.lectures_filter.lambda_handler
+      Handler: src.lambda_function.lambda_handler
       Runtime: python3.13
       CodeUri: .
       MemorySize: 128

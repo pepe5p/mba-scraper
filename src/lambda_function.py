@@ -10,6 +10,7 @@ from aws_lambda_powertools.event_handler import APIGatewayHttpResolver, Response
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from bs4 import BeautifulSoup
 from icalendar.cal import Calendar, Event
+from loguru import logger
 
 warnings.filterwarnings("ignore", message=".*maxsplit.*", category=DeprecationWarning, module=r"ics\.utils")
 
@@ -60,6 +61,7 @@ class NoGamesForTeamError(Exception):
 
 @app.exception_handler(InvalidLeagueError)
 def handle_invalid_league_error(error: InvalidLeagueError) -> Response[str]:
+    logger.error(f"Invalid league `{error.league}`.")
     return Response(
         status_code=http.HTTPStatus.BAD_REQUEST,
         content_type="text/plain",
@@ -69,6 +71,7 @@ def handle_invalid_league_error(error: InvalidLeagueError) -> Response[str]:
 
 @app.exception_handler(NoGamesForTeamError)
 def handle_no_games_for_team_error(_: NoGamesForTeamError) -> Response[str]:
+    logger.error("No games found for the given team.")
     return Response(
         status_code=http.HTTPStatus.BAD_REQUEST,
         content_type="text/plain",
@@ -88,6 +91,7 @@ def main() -> Response[str]:
 
     team_name_quoted = app.current_event.get_query_string_value(name="team_name")
     if not team_name_quoted:
+        logger.error("Missing required query parameter `team_name`.")
         return Response(
             status_code=http.HTTPStatus.BAD_REQUEST,
             content_type="text/plain",
@@ -99,6 +103,7 @@ def main() -> Response[str]:
     try:
         calendar = scrape_calendar(league_id=league_id, team_name=team_name)
     except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to fetch MBA website: {e}")
         return Response(
             status_code=http.HTTPStatus.BAD_REQUEST,
             content_type="text/plain",

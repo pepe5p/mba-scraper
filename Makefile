@@ -95,7 +95,7 @@ pack:
 lambda_build_local:
 	# copy to requirements.txt
 	make dc_generate_requirements
-	sam build --use-container --build-image LecturesFilterFunction=public.ecr.aws/sam/build-python3.13 \
+	sam build --use-container --build-image MBAScraper=public.ecr.aws/sam/build-python3.13 \
 		--template template.yaml \
 		--debug
 
