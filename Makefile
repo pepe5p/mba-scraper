@@ -82,33 +82,33 @@ copier_update:  ### Run copier to update project from template
 ps:  ### Open python console (useful when prefixed with dc/, as it opens python console inside docker)
 	PYTHONPATH=./src PYTHONSTARTUP=ipython_startup.py ipython
 
-generate_requirements:
+generate_requirements:  ### Generate requirements.txt from poetry.lock
 	poetry export --without-hashes -f requirements.txt > requirements.txt
 
-install:
+install:  ### Install dependencies from requirements.txt
 	pip install --target ./package -r requirements.txt
 
-pack:
+pack:  ### Pack source code into zip package
 	cd package && zip -r ../pkg.zip . && cd .. && zip -g pkg.zip src/*
 
 ###  Do not run commands below within container (dc_ prefix)
-lambda_build_local:
+lambda_build_local:  ## Build lambda locally
 	# copy to requirements.txt
 	make dc_generate_requirements
 	sam build --use-container --build-image MBAScraper=public.ecr.aws/sam/build-python3.13 \
 		--template template.yaml \
 		--debug
 
-lambda_api:
+lambda_api:  ## Run lambda locally
 	sam local start-api -p 3738
 
-lambda_build:
+lambda_build:  ## Build lambda package
 	make generate_requirements
 	make install
 	make pack
 
 #build package locally which is ready to upload od remote lambda
-lambda_build_pack_locally:
+lambda_build_pack_locally:  ## Build lambda package locally
 	make dc_generate_requirements
 	make dc_install
 	make pack

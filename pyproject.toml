@@ -9,10 +9,10 @@ readme = "README.md"
 python = "^3.13"
 aws-lambda-powertools = "^3.7.0"
 beautifulsoup4 = "^4.13.3"
-dumb-init = "^1.2.5.post1"
 icalendar = "^6.1.1"
-requests = "^2.32.3"
 loguru = "^0.7.3"
+lxml = "^5.3.1"
+requests = "^2.32.3"
 
 [tool.poetry.group.dev.dependencies]
 black = "^24.10.0"
@@ -51,7 +51,7 @@ exclude_lines = [
 code = ["src"]
 deps = ["pyproject.toml"]
 ignore_unused = [
-    "dumb-init",
+    "lxml",
 
     # Dev dependencies. This list should contain ALL of them!
     "black",

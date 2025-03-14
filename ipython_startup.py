@@ -1,7 +1,7 @@
 from pathlib import Path
-from urllib.parse import quote
 
-from lambda_function import LEAGUE_IDS, scrape_calendar
+from calendar_scraping import scrape_calendar
+from lambda_function import LEAGUE_IDS
 
 data = [
     ("aspiration", "Singing Frogs"),
@@ -25,6 +25,3 @@ with open(result_path, "w") as f:
 result_path = Path("singing_crazy_frogs.ics").resolve()
 with open(result_path, "w") as f:
     f.writelines(cal2.to_ical().decode("utf-8"))
-
-quoted_sf = quote(string=data[0][1])
-quoted_scf = quote(string=data[1][1])
