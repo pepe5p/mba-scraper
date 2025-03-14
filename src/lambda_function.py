@@ -7,7 +7,7 @@ from aws_lambda_powertools.event_handler import APIGatewayHttpResolver, Response
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from loguru import logger
 
-from calendar_scraping import NoGamesForTeamError, scrape_calendar
+from calendar_scraping import DOMStructureError, NoGamesForTeamError, scrape_calendar
 
 app = APIGatewayHttpResolver()
 
@@ -67,6 +67,16 @@ def handle_no_games_for_team_error(_: NoGamesForTeamError) -> Response[str]:
         status_code=http.HTTPStatus.BAD_REQUEST,
         content_type="text/plain",
         body="No games found for the given team.",
+    )
+
+
+@app.exception_handler(DOMStructureError)
+def handle_dom_structure_error(_: DOMStructureError) -> Response[str]:
+    logger.error("DOM structure error.")
+    return Response(
+        status_code=http.HTTPStatus.BAD_REQUEST,
+        content_type="text/plain",
+        body="Cannot parse MBA website.",
     )
 
 

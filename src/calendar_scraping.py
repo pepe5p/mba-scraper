@@ -28,6 +28,10 @@ class NoGamesForTeamError(Exception):
     pass
 
 
+class DOMStructureError(Exception):
+    pass
+
+
 def scrape_calendar(league_id: int, team_name: str) -> Calendar:
     source_url = construct_source_url(league_id=league_id)
     response = requests.get(url=source_url)
@@ -51,31 +55,45 @@ def scrape_game_events(response: Response, team_name: str) -> list[GameEventData
 
     events = []
     for game in games:
-        home_team_name = game.select_one(
-            "div.sched-teams div.home-team div.team-name a span.team-name-full",
-        ).text  # type: ignore[union-attr]
-        away_team_name = game.select_one(
-            "div.sched-teams div.away-team div.team-name a span.team-name-full",
-        ).text  # type: ignore[union-attr]
+        try:
+            home_team_name = game.select_one(
+                "div.sched-teams div.home-team div.team-name a span.team-name-full",
+            ).text  # type: ignore[union-attr]
+            away_team_name = game.select_one(
+                "div.sched-teams div.away-team div.team-name a span.team-name-full",
+            ).text  # type: ignore[union-attr]
+        except AttributeError as e:
+            raise DOMStructureError() from e
 
         if team_name not in [home_team_name, away_team_name]:
             continue
 
-        home_team_score = game.select_one(
-            "div.sched-teams div.home-team div.team-score.homescore div.fake-cell"
-        ).text  # type: ignore[union-attr]
+        try:
+            home_team_score = game.select_one(
+                "div.sched-teams div.home-team div.team-score.homescore div.fake-cell"
+            ).text  # type: ignore[union-attr]
+        except AttributeError as e:
+            raise DOMStructureError() from e
+
         if is_empty_string(value=home_team_score):
             home_team_score = None
 
-        away_team_score = game.select_one(
-            "div.sched-teams div.away-team div.team-score.awayscore div.fake-cell"
-        ).text  # type: ignore[union-attr]
+        try:
+            away_team_score = game.select_one(
+                "div.sched-teams div.away-team div.team-score.awayscore div.fake-cell"
+            ).text  # type: ignore[union-attr]
+        except AttributeError as e:
+            raise DOMStructureError() from e
+
         if is_empty_string(value=away_team_score):
             away_team_score = None
 
-        details = game.select_one("div.match-details-wrap > div")  # type: ignore[union-attr]
-        game_datetime = details.select_one("div.match-time span").text  # type: ignore[union-attr]
-        venue = details.select_one("div.match-venue a").text  # type: ignore[union-attr]
+        try:
+            details = game.select_one("div.match-details-wrap > div")  # type: ignore[union-attr]
+            game_datetime = details.select_one("div.match-time span").text  # type: ignore[union-attr]
+            venue = details.select_one("div.match-venue a").text  # type: ignore[union-attr]
+        except AttributeError as e:
+            raise DOMStructureError() from e
 
         event = GameEventData(
             home_team_name=home_team_name,
