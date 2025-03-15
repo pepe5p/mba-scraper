@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 import requests
@@ -7,21 +6,46 @@ from icalendar import Calendar, Event
 from requests import Response
 
 
-@dataclass
-class GameEventData:
-    home_team_name: str
-    away_team_name: str
-    home_team_score: str | None
-    away_team_score: str | None
-    location: str
-    start_datetime: str
+class GameEvent:
+    def __init__(
+        self,
+        home_team_name: str,
+        away_team_name: str,
+        home_team_score: str | None,
+        away_team_score: str | None,
+        location: str,
+        start_datetime_raw: str,
+    ) -> None:
+        self.home_team_name = home_team_name
+        self.away_team_name = away_team_name
+        self.home_team_score = home_team_score
+        self.away_team_score = away_team_score
+        self.location = location
+        self.start_datetime = datetime.strptime(start_datetime_raw, "%d %b %Y, %H:%M")
+
+    def to_ical_event(self) -> Event:
+        ical_event = Event()
+        ical_event.add("SUMMARY", self.summary)
+        ical_event.add("LOCATION", self.location)
+        ical_event.add("DTSTART", self.start_datetime)
+        ical_event.add("DTEND", self.end_datetime)
+        ical_event.add("DESCRIPTION", self.description)
+        return ical_event
+
+    @property
+    def summary(self) -> str:
+        return f"MBA: {self.home_team_name} vs {self.away_team_name}"
+
+    @property
+    def end_datetime(self) -> datetime:
+        return self.start_datetime + timedelta(hours=1, minutes=30)
 
     @property
     def description(self) -> str:
         if self.home_team_score is None and self.away_team_score is None:
             return f"{self.home_team_name} - {self.away_team_name}"
         else:
-            return f"{self.home_team_name} {self.home_team_score}" f" - {self.away_team_score} {self.away_team_name}"
+            return f"{self.home_team_name} {self.home_team_score} - {self.away_team_score} {self.away_team_name}"
 
 
 class NoGamesForTeamError(Exception):
@@ -47,7 +71,7 @@ def construct_source_url(league_id: int) -> str:
     return f"https://hosted.dcd.shared.geniussports.com/LMBA/en/competition/{league_id}/schedule"
 
 
-def scrape_game_events(response: Response, team_name: str) -> list[GameEventData]:
+def scrape_game_events(response: Response, team_name: str) -> list[GameEvent]:
     strainer = SoupStrainer("div", class_="fixture-wrap")
     soup = BeautifulSoup(response.content, "lxml", parse_only=strainer)
 
@@ -95,13 +119,13 @@ def scrape_game_events(response: Response, team_name: str) -> list[GameEventData
         except AttributeError as e:
             raise DOMStructureError() from e
 
-        event = GameEventData(
+        event = GameEvent(
             home_team_name=home_team_name,
             away_team_name=away_team_name,
             home_team_score=home_team_score,
             away_team_score=away_team_score,
             location=venue,
-            start_datetime=game_datetime,
+            start_datetime_raw=game_datetime,
         )
         events.append(event)
 
@@ -112,7 +136,7 @@ def is_empty_string(value: str) -> bool:
     return value.isspace() or value == ""
 
 
-def create_ical(game_events: list[GameEventData], team_name: str) -> Calendar:
+def create_ical(game_events: list[GameEvent], team_name: str) -> Calendar:
     cal = Calendar()
     cal.add("prodid", "-//Piotr Karaś//MBA web scraper//1.0.0")
     cal.add("version", "2.0")
@@ -122,13 +146,7 @@ def create_ical(game_events: list[GameEventData], team_name: str) -> Calendar:
     cal.add("X-PUBLISHED-TTL", "PT12H")
 
     for game_event in game_events:
-        ical_event = Event()
-        ical_event.add("SUMMARY", f"MBA: {game_event.home_team_name} vs {game_event.away_team_name}")
-        ical_event.add("LOCATION", game_event.location)
-        local_datetime = datetime.strptime(game_event.start_datetime, "%d %b %Y, %H:%M")
-        ical_event.add("DTSTART", local_datetime)
-        ical_event.add("DTEND", local_datetime + timedelta(hours=1, minutes=30))
-        ical_event.add("DESCRIPTION", game_event.description)
-        cal.add_component(ical_event)
+        ical_event = game_event.to_ical_event()
+        cal.add_component(component=ical_event)
 
     return cal
