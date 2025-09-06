@@ -31,7 +31,7 @@ def api_gw_event() -> dict:
             "stage": "$default",
         },
         "queryStringParameters": {
-            "league": "aspiration",
+            "league": "development",
             "team_name": "Singing%20Frogs",
         },
         "rawPath": "/",
