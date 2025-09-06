@@ -36,12 +36,13 @@ def lambda_handler(event: dict[str, Any], context: LambdaContext) -> dict:
     return app.resolve(event, context)
 
 
+# IDs for season 11
 LEAGUE_IDS = {
-    "halloffame": 40438,
-    "allstar": 40437,
-    "development": 40439,
-    "aspiration": 40440,
-    "recreation": 40441,
+    "halloffame": 41830,
+    "allstar": 41827,
+    "development": 41829,
+    "aspiration": 41828,
+    "recreation": 41831,
 }
 
 
