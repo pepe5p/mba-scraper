@@ -36,28 +36,18 @@ def lambda_handler(event: dict[str, Any], context: LambdaContext) -> dict:
     return app.resolve(event, context)
 
 
-# IDs for season 11
-LEAGUE_IDS = {
-    "halloffame": 41830,
-    "allstar": 41827,
-    "development": 41829,
-    "aspiration": 41828,
-    "recreation": 41831,
-}
+class InvalidLeagueIDError(Exception):
+    def __init__(self, league_id: int | str | None) -> None:
+        self.league_id = league_id
 
 
-class InvalidLeagueError(Exception):
-    def __init__(self, league: str | None) -> None:
-        self.league = league
-
-
-@app.exception_handler(InvalidLeagueError)
-def handle_invalid_league_error(error: InvalidLeagueError) -> Response[str]:
-    logger.error(f"Invalid league `{error.league}`.")
+@app.exception_handler(InvalidLeagueIDError)
+def handle_invalid_league_error(error: InvalidLeagueIDError) -> Response[str]:
+    logger.error(f"Invalid league `{error.league_id}`.")
     return Response(
         status_code=http.HTTPStatus.BAD_REQUEST,
         content_type="text/plain",
-        body=f"Invalid league `{error.league}`.",
+        body=f"Invalid league `{error.league_id}`.",
     )
 
 
@@ -83,13 +73,9 @@ def handle_dom_structure_error(_: DOMStructureError) -> Response[str]:
 
 @app.get("/")
 def main() -> Response[str]:
-    league = app.current_event.get_query_string_value(name="league")
-    if not league:
-        raise InvalidLeagueError(league=league)
-    try:
-        league_id = LEAGUE_IDS[league]
-    except KeyError:
-        raise InvalidLeagueError(league=league)
+    league_id_raw = app.current_event.get_query_string_value(name="league_id")
+    if not league_id_raw:
+        raise InvalidLeagueIDError(league_id=league_id_raw)
 
     team_name_quoted = app.current_event.get_query_string_value(name="team_name")
     if not team_name_quoted:
@@ -100,6 +86,7 @@ def main() -> Response[str]:
             body="Missing required query parameter `team_name`.",
         )
 
+    league_id = int(league_id_raw)
     team_name = unquote(string=team_name_quoted)
 
     try:
