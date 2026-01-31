@@ -1,45 +1,68 @@
-[tool.poetry]
+[project]
 name = "mba-scraper"
-version = "0.1.0"
+version = "0.0.0"  # This is a placeholder, version is determined by git tag and commits
 description = "AWS Lambda code that scrapes schedule from MBA League website and returns .ics calendar with games."
-authors = ["Piotr Karaś <pepe500p@gmail.com>"]
+authors = [{ name = "Piotr Karaś", email = "pepe500p@gmail.com" }]
+requires-python = ">=3.13"
 readme = "README.md"
+dependencies = [
+    "aws-lambda-powertools>=3.16.0,<4",
+    "beautifulsoup4>=4.14.3",
+    "icalendar>=6.3.2",
+    "loguru>=0.7.3",
+    "lxml>=6.0.2",
+    "requests>=2.32.5",
+]
 
-[tool.poetry.dependencies]
-python = "^3.13"
-aws-lambda-powertools = "^3.7.0"
-beautifulsoup4 = "^4.13.3"
-icalendar = "^6.1.1"
-loguru = "^0.7.3"
-lxml = "^5.3.1"
-requests = "^2.32.3"
-
-[tool.poetry.group.dev.dependencies]
-black = "^24.10.0"
-copier = "^9.6.0"
-fawltydeps = "^0.13.3"
-flake8 = "^6.0.0"
-flake8-pyproject = "^1.2.3"
-ipython = "^8.32.0"
-isort = {version = "^5.12.0", extras = ["colors"]}
-mypy = "^1.3.0"
-pytest = "^8.2.1"
-pytest-cov = "^4.1.0"
-types-requests = "^2.32.0.20241016"
+[dependency-groups]
+dev = [
+    "copier>=9.11.3,<10",
+    "fawltydeps>=0.20.0,<1.0.0",
+    "ipython>=9.9.0,<10",
+    "mypy>=1.19.1,<2",
+    "pytest-cov>=7.0.0,<8",
+    "pytest-mock>=3.15.1,<4",
+    "pytest>=9.0.2,<10",
+    "ruff>=0.14.14,<0.15.0",
+    "types-requests>=2.32.4.20260107",
+]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry.requires-plugins]
-poetry-plugin-export = ">=1.8"
-
-[tool.black]
+[tool.ruff]
 line-length = 120
 
-[tool.coverage.run]
-branch = true
-omit = ["*test*"]
+[tool.ruff.lint]
+#  See https://docs.astral.sh/ruff/rules/ for more information.
+select = [
+    "PT",   # flake8-pytest-style
+    "B",    # flake8-bugbear
+    "S",    # flake8-bandit
+    "A",    # flake8-builtins
+    "COM",  # flake8-commas
+    "C4",   # flake8-comprehensions
+    "T10",  # flake8-debugger
+    "I",    # isort
+    "T20",  # flake8-print
+    "SIM",  # flake8-simplify
+    "LOG",  # flake8-logging
+    "G",    # flake8-logging-format
+    "N",    # pep8-naming
+    "E",    # pycodestyle
+    "W",    # pycodestyle
+    "F",    # pyflakes
+    ]
+ignore = ["S101", "A003", "B904", "N818", "COM812"]
+
+[tool.ruff.lint.flake8-pytest-style]
+fixture-parentheses = true
+mark-parentheses = true
+
+[tool.ruff.lint.isort]
+order-by-type = false
+known-first-party = ["mba_scraper"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -48,48 +71,29 @@ exclude_lines = [
 ]
 
 [tool.fawltydeps]
-code = ["src"]
+code = ["mba_scraper"]
 deps = ["pyproject.toml"]
 ignore_unused = [
     "lxml",
 
     # Dev dependencies. This list should contain ALL of them!
-    "black",
     "copier",
     "fawltydeps",
-    "flake8",
-    "flake8-pyproject",
     "ipython",
-    "isort",
     "mypy",
-    "poetry-dynamic-versioning",
-    "pytest",
     "pytest-cov",
+    "pytest-mock",
+    "pytest",
+    "ruff",
 ]
-
-[tool.flake8]
-# S101 == Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
-# W503 == line break before binary operator. Conflicts with W504 - line break after binary operator.
-# A003 == . Conflicts with W504 - line break after binary operator.
-# E203 == whitespace before ':' Conflicts with black
-ignore = ['S101', 'W503', 'A003', 'E203']
-max-line-length = 120
-
-[tool.isort]
-profile = "black"
-line_length = 120
-order_by_type = false
 
 [tool.mypy]
 disallow_untyped_defs = true
 ignore_missing_imports = true
-show_error_codes = true
-show_traceback = true
-no_implicit_optional = true
-check_untyped_defs = true
-strict_equality = true
+no_implicit_optional = false
+disable_error_code = "misc"
 
 [tool.pytest.ini_options]
 python_files = ["tests.py", "test_*.py", "*_tests.py"]
-addopts = "--strict-markers --cov=. --cov-fail-under=70.0 --cov-config=.coveragerc"
-pythonpath = ["."]
+testpaths = "tests"
+addopts = "--strict-markers -p no:warnings --cov=mba_scraper --cov-fail-under=70"

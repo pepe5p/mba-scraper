@@ -58,7 +58,8 @@ class DOMStructureError(Exception):
 
 def scrape_calendar(league_id: int, team_name: str) -> Calendar:
     source_url = construct_source_url(league_id=league_id)
-    response = requests.get(url=source_url)
+    timeout = 15  # seconds
+    response = requests.get(url=source_url, timeout=timeout)
 
     game_events = scrape_game_events(response=response, team_name=team_name)
     if not game_events:
