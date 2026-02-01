@@ -7,33 +7,9 @@ from aws_lambda_powertools.event_handler import APIGatewayHttpResolver, Response
 from aws_lambda_powertools.utilities.typing import LambdaContext
 from loguru import logger
 
-from calendar_scraping import DOMStructureError, NoGamesForTeamError, scrape_calendar
+from .calendar_scraping import DOMStructureError, NoGamesForTeamError, scrape_calendar
 
 app = APIGatewayHttpResolver()
-
-
-def lambda_handler(event: dict[str, Any], context: LambdaContext) -> dict:
-    """
-    Parameters
-    ----------
-    event: dict, required
-        API Gateway Lambda Proxy Input Format
-
-        Event doc:
-        https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
-
-    context: object, required
-        Lambda Context runtime methods and attributes
-
-        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
-
-    Returns
-    ------
-    API Gateway Lambda Proxy Output Format: dict
-
-        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
-    """
-    return app.resolve(event, context)
 
 
 class InvalidLeagueIDError(Exception):
@@ -104,3 +80,27 @@ def main() -> Response[str]:
         content_type="text/plain; charset=utf-8",
         body=calendar.to_ical().decode("utf-8"),
     )
+
+
+def lambda_handler(event: dict[str, Any], context: LambdaContext) -> dict:
+    """
+    Parameters
+    ----------
+    event: dict, required
+        API Gateway Lambda Proxy Input Format
+
+        Event doc:
+        https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html#api-gateway-simple-proxy-for-lambda-input-format
+
+    context: LambdaContext, required
+        Lambda Context runtime methods and attributes
+
+        Context doc: https://docs.aws.amazon.com/lambda/latest/dg/python-context-object.html
+
+    Returns
+    ------
+    API Gateway Lambda Proxy Output Format: dict
+
+        Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
+    """
+    return app.resolve(event, context)

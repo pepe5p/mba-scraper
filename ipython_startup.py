@@ -1,21 +1,20 @@
 from pathlib import Path
 
-from calendar_scraping import scrape_calendar
-from lambda_function import LEAGUE_IDS
+from mba_scraper.calendar_scraping import scrape_calendar
 
 data = [
-    ("aspiration", "Singing Frogs"),
-    ("recreation", "Singing Crazy Frogs"),
+    ("all_star", 48242, "Singing Frogs"),
+    ("recreation", 48246, "Singing Crazy Frogs"),
 ]
 
 cal1 = scrape_calendar(
-    league_id=LEAGUE_IDS[data[0][0]],
-    team_name=data[0][1],
+    league_id=data[0][1],
+    team_name=data[0][2],
 )
 
 cal2 = scrape_calendar(
-    league_id=LEAGUE_IDS[data[1][0]],
-    team_name=data[1][1],
+    league_id=data[1][1],
+    team_name=data[1][2],
 )
 
 result_path = Path("singing_frogs.ics").resolve()
