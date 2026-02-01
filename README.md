@@ -37,7 +37,7 @@ This command:
 5. Creates a timestamped zip file in the `build/` directory (e.g., `mba_scraper_20260201_005935.zip`)
 
 The resulting zip file contains:
-- All Python dependencies (requests, beautifulsoup4, icalendar, aws-lambda-powertools, etc.)
+- All Python dependencies
 - The `mba_scraper` package with your application code
 - A `lambda_function.py` shim that exposes the handler
 
@@ -55,7 +55,6 @@ build/pkg/
 │   ├── __init__.py
 │   ├── lambda_function.py      # Actual handler implementation
 │   └── ...
-├── requests/
 ├── aws_lambda_powertools/
 └── ... (other dependencies)
 ```

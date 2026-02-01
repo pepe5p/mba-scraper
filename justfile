@@ -67,7 +67,7 @@ alias full_lint_ff := lint_full_ff
 
 [group("lint")]
 [doc("Run mypy check (type checking)")]
-mypy: _set_pythonpath
+mypy:
 	uv run mypy {{PATHS_TO_LINT}} --show-error-codes --show-traceback --implicit-reexport
 
 [group("development")]
